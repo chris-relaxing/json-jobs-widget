@@ -13,8 +13,6 @@ The finished widget should display some basic information about the first 5 item
 
 The widget should fit within a standard ad size of 300px wide by 600px tall.
 
-<br>
-
 # Solution
 
 This widget meets the above requirements, with the addition of a "Next 5" and "Prev 5" feature that allows the user to cycle through jobs without reloading the page. The solution utilizes the following technologies:
@@ -28,6 +26,8 @@ The widget can be viewed on my website here:<BR>
 http://bluegalaxy.info/json-jobs-widget/
 
 Here is what the widget looks like:
+
+![alt text](http://bluegalaxy.info/images/json-jobs-widget-300.jpg)
 
 
 
