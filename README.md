@@ -13,7 +13,7 @@ The finished widget should display some basic information about the first 5 item
 
 The widget should fit within a standard ad size of 300px wide by 600px tall.
 
-<br><br>
+<br>
 
 # Solution
 
@@ -29,7 +29,7 @@ http://bluegalaxy.info/json-jobs-widget/
 
 Here is what the widget looks like:
 
-![alt text](http://bluegalaxy.info/images/json-jobs-widget.jpg)
+
 
 
 
