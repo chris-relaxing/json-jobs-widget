@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+  <title>Jobs Widget</title>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: 'Open Sans', sans-serif;
+    }
+    .jobs-widget {
+      width: 300px;
+      height: 600px;
+      border: 1px solid #999;
+      border-top: 5px solid #FA5000;
+      border-bottom: 5px solid #aaa;
+      margin: 100px;
+      background-color: #fff;
+    }
+    .content-area {
+      margin-left: 30px;
+      margin-right: 30px;
+    }
+
+    a {
+      color: #0aa6af;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    a:hover {
+      color: #088a91;
+      font-weight: bold;
+    }
+
+    p.description {
+      margin-top: 3px;
+      /* margin-left: 7px; */
+      font-size: 11px;
+    }
+
+    h4 {
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+    h5 {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      font-weight: 600;
+      color: #333;
+      font-size: 11px;
+    }
+
+    .jobs-widget-footer {
+      /* position: relative; */
+      display: grid;
+      grid-template-columns: 33% 33% 33%;
+      width: 100%;
+      bottom: 4px;
+      height: 30px;
+    }
+
+    .jobs-widget-footer-next {
+      /* position: absolute; */
+      width: 100%;
+      text-align: right;
+      bottom: 2px;
+      padding-right: 15px;
+      font-size: 12px;
+      z-index: 2;
+      color: black;
+      font-weight: 300;
+      margin-top: 4px;
+    }
+
+    .jobs-widget-footer-prev {
+      /* position: absolute; */
+      text-align: left;
+      bottom: 2px;
+      font-size: 12px;
+      z-index: 2;
+      color: black;
+      font-weight: 300;
+      margin-top: 4px;
+    }
+
+
+    .jobs-widget-footer-next:hover, .jobs-widget-footer-prev:hover {
+      color: #0aa6af;
+    }
+
+    .job-details-listings{
+      margin-top: 5px;
+      display: grid;
+      grid-template-rows: 20% 20% 20% 20% 20%;
+      grid-row-gap: 2px;
+      height: 525px;
+
+    }
+
+    .job-details-0, .job-details-1, .job-details-2, .job-details-3, .job-details-4 {
+      overflow: hidden;
+      border-top: 1px solid #aaa;
+      padding-bottom: 8px;
+    }
+
+    .num-jobs {
+      /* position: absolute; */
+      margin-top: 4px;
+      text-align: center;
+      font-size: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="jobs-widget">
+  <div class="content-area">
+
+    <h4>VIEW AVAILABLE JOBS</h4>
+
+    <div class="job-details-listings">
+
+      <div class="job-details-0"></div>
+      <div class="job-details-1"></div>
+      <div class="job-details-2"></div>
+      <div class="job-details-3"></div>
+      <div class="job-details-4"></div>
+
+    </div> <!-- END class="job-details-listings" -->
+
+    <div class="jobs-widget-footer">
+      <div class="jobs-widget-footer-prev" onClick="prevFive()"></div>
+      <div class="num-jobs"></div>
+      <div class="jobs-widget-footer-next" onClick="nextFive()">Next 5</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  let fiveJobs = []
+  let startIndex = 0
+  let jobDataJSON = {}
+  let lengthOfData = 0
+
+  let scrapeJSON = 'http://bluegalaxy.info/cgi/scrapeJSON.py'
+  $.get(scrapeJSON, function(data) {
+    // Get JSON data from Python script
+    if (data){
+      console.log("Data returned:", data)
+    }
+
+    jobDataJSON = JSON.parse(data)
+    console.log('jobDataJSON', jobDataJSON)
+
+    let jobDataType = typeof jobDataJSON
+    console.log('jobDataType', jobDataType)
+    lengthOfData = jobDataJSON.Job.length
+    getFiveRecords()
+
+  })
+
+  function getFiveRecords(){
+    let jobOutput = ''
+    let maxLength = 120
+    let shortDesc = ''
+    let maxTitleLength = 36
+    let job = []
+
+    for(i = 0; i < 5; i++ ){
+      let widgetOutput = {}
+
+      if(startIndex+i < lengthOfData){
+        job = jobDataJSON.Job[startIndex+i]
+        console.log("\n", startIndex+i, jobDataJSON.Job[startIndex+i])
+        widgetOutput["Title"] = job.Title
+
+        // Allow a maximum length of maxTitleLength for each title
+        if (job.Title.length > maxTitleLength){
+          truncTitle = job.Title.substring(0, maxTitleLength)
+        } else {
+          truncTitle = job.Title
+        }
+        widgetOutput["truncTitle"] = truncTitle
+
+        // Allow a maximum length of maxLength for each description
+        if (job.ShortDescription.length > maxLength){
+          shortDesc = job.ShortDescription.substring(0, maxLength)
+          shortDesc += "..."
+        } else {
+          shortDesc = job.ShortDescription
+        }
+
+        widgetOutput["ShortDescription"] = shortDesc
+        widgetOutput["RecruiterName"] = job.RecruiterName
+        widgetOutput["Link"] = job.ApplyUrl
+        console.log('widgetOutput:', widgetOutput)
+
+      } else {
+        job = false
+      }
+
+      // build HTML output
+      if(job){
+        jobOutput = '<a href="' + widgetOutput.Link + '" title="' + widgetOutput.Title + '">' + widgetOutput.truncTitle + '</a><h5>' + widgetOutput.RecruiterName + '</h5><p class="description">' + widgetOutput.ShortDescription + '</p>'
+        $(".job-details-" + i.toString()).html(jobOutput)
+      } else {
+        $(".job-details-" + i.toString()).html('')
+      }
+
+      // If we're at the beginning of the list, don't show 'Prev 5'
+      let prev = ''
+      if(startIndex === 0){
+        $('.jobs-widget-footer-prev').html(prev)
+      } else {
+        prev = 'Prev 5'
+        $('.jobs-widget-footer-prev').html(prev)
+      }
+
+      // Show a map of where we are in the data set "1 - 5" of 90 for example
+      let plusFive = startIndex+5
+      let plusOne = startIndex+1
+      if (plusFive > lengthOfData){
+        plusFive = lengthOfData
+      }
+      let map = '<center>' + plusOne + ' - ' + plusFive + ' of ' + lengthOfData + '</center>'
+      $('.num-jobs').html(map)
+
+    }
+  }
+
+  // When the 'Next 5' link is clicked, advance to the next five job listings
+  function nextFive(){
+    startIndex += 5
+    if(startIndex > lengthOfData){
+      startIndex = 0 // start over
+    }
+    console.log("Get the next five.", startIndex)
+    getFiveRecords()
+  }
+
+  // When the 'Prev 5' link is clicked, display the previous five job listings
+  function prevFive(){
+    startIndex -= 5
+    if(startIndex < 0){
+      startIndex = 0  // start over
+    }
+    console.log("Get the prev five.", startIndex)
+    getFiveRecords()
+  }
+
+
+</script>
+
+</body>
+</html>
